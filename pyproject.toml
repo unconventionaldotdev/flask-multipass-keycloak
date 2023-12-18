@@ -1,0 +1,30 @@
+[virtualenvs]
+create = true
+in-project = true
+prefer-active-python = true
+
+[tool.poetry]
+name = "flask-multipass-keycloak"
+version = "0.1.0"
+description = "Flask-Multipass provider for Keycloak"
+repository = "https://github.com/indico/flask-multipass-keycloak"
+readme = "README.md"
+license = "MIT"
+authors = [
+  "Alejandro Avilés <ome@unconventional.dev>"
+]
+maintainers = [
+  "Adrian Moennich <adrian.moennich@cern.ch>"
+]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Web Environment",
+  "Framework :: Flask",
+]
+
+[tool.poetry.dependencies]
+python = "~=3.9"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
