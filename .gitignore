@@ -2,4 +2,5 @@
 .venv/
 
 # temporary directories
+.ruff_cache/
 __pycache__/
