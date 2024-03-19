@@ -94,14 +94,19 @@ class KeycloakGroup(Group):
 
     def get_members(self):
         group = self.provider._get_group_data(self.name)
+        if not group:
+            return None
         with self.provider._get_api_session() as api_session:
             url = urljoin(self.provider.keycloak_settings['realm_api_url'] + '/', f'groups/{group["id"]}/members')
             response = api_session.get(url)
+            response.raise_for_status()
+            identifier_field = self.provider.settings['identifier_field']
             for member in response.json():
-                yield IdentityInfo(self.provider,
-                                   member['email'],
-                                   first_name=member.get('firstName', ''),
-                                   last_name=member.get('lastName', ''))
+                if identifier_field in member:
+                    yield IdentityInfo(self.provider,
+                                       member[identifier_field],
+                                       first_name=member.get('firstName', ''),
+                                       last_name=member.get('lastName', ''))
 
     def has_member(self, identifier):
         cache = self.provider.cache
@@ -137,6 +142,14 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
     def keycloak_settings(self):
         return dict(self.settings['keycloak_args'])
 
+    @staticmethod
+    def group_path_as_name(group_path):
+        return group_path[1:].replace('/', ' > ')
+
+    @staticmethod
+    def group_name_as_path(group_name):
+        return f'/{group_name.replace(" > ", "/")}'
+
     def get_group(self, name):
         return self.group_class(self, name)
 
@@ -148,7 +161,7 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
             url = urljoin(self.keycloak_settings['realm_api_url'] + '/', 'groups')
             response = api_session.get(url, params=params)
             for group in response.json():
-                yield self.group_class(self, group['name'])
+                yield self.group_class(self, self.group_path_as_name(group['path']))
 
     def get_identity_groups(self, identifier):
         with self._get_api_session() as api_session:
@@ -157,8 +170,6 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
                       'exact': 'true'}
             url = urljoin(self.keycloak_settings['realm_api_url'] + '/', 'users')
             response = api_session.get(url, params=params)
-            if response.status_code == 404:
-                return set()
             response.raise_for_status()
             user_data = response.json()[0]
             # query user's groups
@@ -169,6 +180,24 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
                 return set()
             response.raise_for_status()
         return {self.group_class(self, group['name']) for group in response.json()}
+
+    @memoize_request
+    def _get_group_data(self, name):
+        # API allows searching groups only by name
+        _, _, real_group_name = name.rpartition(' > ')
+        group_path = self.group_name_as_path(name)
+        params = {'search': real_group_name,
+                  'exact': 'true',
+                  'populateHierarchy': 'false'}
+        with self._get_api_session() as api_session:
+            group_url = urljoin(self.keycloak_settings['realm_api_url'] + '/', 'groups')
+            response = api_session.get(group_url, params=params)
+            response.raise_for_status()
+            # Finding the group with the path
+            groups = [group for group in response.json() if group['path'] == group_path]
+        if len(groups) != 1:
+            return None
+        return groups[0]
 
     @memoize_request
     def _get_api_session(self):
@@ -187,17 +216,3 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
         api_session.headers.update({'Authorization': f'Bearer {api_token}'})
         self.cache.set(cache_key, api_token, response.json()['expires_in'] - 30)
         return api_session
-
-    @memoize_request
-    def _get_group_data(self, name):
-        params = {'search': name,
-                  'exact': 'true',
-                  'populateHierarchy': 'false'}
-        with self._get_api_session() as api_session:
-            group_url = urljoin(self.keycloak_settings['realm_api_url'] + '/', 'groups')
-            response = api_session.get(group_url, params=params)
-            response.raise_for_status()
-            groups = response.json()
-        if len(groups) != 1:
-            return None
-        return groups[0]
