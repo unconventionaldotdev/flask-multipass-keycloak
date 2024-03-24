@@ -4,14 +4,15 @@ in-project = true
 prefer-active-python = true
 
 [tool.poetry]
-name = "flask-multipass-keycloak"
+name = "Flask-Multipass-Keycloak"
 version = "0.1.0"
 description = "Flask-Multipass provider for Keycloak"
 repository = "https://github.com/indico/flask-multipass-keycloak"
 readme = "README.md"
 license = "MIT"
 authors = [
-  "Alejandro Avilés <ome@unconventional.dev>"
+  "Alejandro Avilés <ome@unconventional.dev>",
+  "Tamás Makó <tamas.mako@unconventional.dev>"
 ]
 maintainers = [
   "Adrian Moennich <adrian.moennich@cern.ch>"
@@ -24,7 +25,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "~=3.9"
-flask-multipass = {extras = ["authlib"], version = "^0.5.3"}
+flask-multipass = {extras = ["authlib"], version = ">=0.4.3"}
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.8"
@@ -33,6 +34,12 @@ pytest = "^8.1.1"
 pytest-cov = "^4.1.0"
 freezegun = "^1.4.0"
 pytest-mock = "^3.12.0"
+
+[tool.poetry.plugins."flask_multipass.auth_providers"]
+keycloak = "flask_multipass_keycloak:KeycloakAuthProvider"
+
+[tool.poetry.plugins."flask_multipass.identity_providers"]
+keycloak = "flask_multipass_keycloak:KeycloakIdentityProvider"
 
 [build-system]
 requires = ["poetry-core"]
