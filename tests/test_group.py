@@ -5,18 +5,11 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
-from requests import Session
 from requests.exceptions import RequestException
 
+from flask_multipass.data import IdentityInfo
 from flask_multipass_keycloak import KeycloakGroup
 from tests.conftest import MemoryCache
-
-
-@pytest.fixture
-def mock_get_api_session(mocker):
-    get_api_session = mocker.patch('flask_multipass_keycloak.KeycloakIdentityProvider._get_api_session')
-    get_api_session.return_value = Session()
-    return get_api_session
 
 
 @pytest.fixture
@@ -26,6 +19,23 @@ def mock_get_identity_groups(mocker):
     group.name = 'keycloak group'
     get_identity_groups.return_value = {group}
     return get_identity_groups
+
+
+@pytest.fixture
+def mock_api_get_group(mocker):
+    get_group_data = mocker.patch('flask_multipass_keycloak.KeycloakIdentityProvider._get_group_data')
+    get_group_data.return_value = {'id': 'group-id-1',
+                                   'name': 'group-name-1',
+                                   'path': 'group/path/group-name-1'}
+    return get_group_data
+
+
+@pytest.fixture
+def mock_api_get_group_members(mocker):
+    get_group_members = mocker.patch('flask_multipass_keycloak.KeycloakIdentityProvider._fetch_all')
+    get_group_members.return_value = [{'email': 'john.doe@mail.com', 'firstName': 'John', 'lastName': 'Doe'},
+                                      {'email': 'jane.doe@mail.com', 'firstName': 'Jane', 'lastName': 'Doe'}]
+    return get_group_members
 
 
 @pytest.fixture
@@ -43,8 +53,8 @@ def spy_cache_set(mocker):
 @pytest.mark.usefixtures('mock_get_identity_groups')
 def test_has_member_cache(provider):
     test_group = KeycloakGroup(provider, 'keycloak group')
-    test_group.has_member('12345')
 
+    assert test_group.has_member('12345') is True
     assert test_group.provider.cache.get('flask-multipass-keycloak:kcip:groups:12345')
     assert test_group.provider.cache.get('flask-multipass-keycloak:kcip:groups:12345:timestamp')
 
@@ -52,8 +62,8 @@ def test_has_member_cache(provider):
 @pytest.mark.usefixtures('mock_get_identity_groups')
 def test_has_member_cache_miss(provider, spy_cache_set):
     test_group = KeycloakGroup(provider, 'keycloak group')
-    test_group.has_member('12345')
 
+    assert test_group.has_member('12345') is True
     assert spy_cache_set.call_count == 2
 
 
@@ -61,15 +71,23 @@ def test_has_member_cache_hit(provider, mock_get_identity_groups):
     test_group = KeycloakGroup(provider, 'keycloak group')
     test_group.provider.cache.set('flask-multipass-keycloak:kcip:groups:12345', 'keycloak group')
     test_group.provider.cache.set('flask-multipass-keycloak:kcip:groups:12345:timestamp', datetime.now())
-    test_group.has_member('12345')
 
+    assert test_group.has_member('12345') is True
     assert not mock_get_identity_groups.called
 
 
 @pytest.mark.usefixtures('mock_get_identity_groups')
 def test_has_member_request_fails(provider, mock_get_identity_groups_fail):
     test_group = KeycloakGroup(provider, 'keycloak group')
-    res = test_group.has_member('12345')
 
+    assert test_group.has_member('12345') is False
     assert mock_get_identity_groups_fail.called
-    assert res is False
+
+
+@pytest.mark.usefixtures('mock_get_api_session', 'mock_api_get_group', 'mock_api_get_group_members')
+def test_get_members(provider):
+    test_group = KeycloakGroup(provider, 'keycloak group')
+    members = list(test_group.get_members())
+
+    assert len(members) == 2
+    assert all(isinstance(member, IdentityInfo) for member in members)

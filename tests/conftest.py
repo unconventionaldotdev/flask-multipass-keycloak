@@ -7,6 +7,7 @@ import freezegun
 import pytest
 from flask import Flask
 from flask_multipass import Multipass
+from requests import Session
 
 from flask_multipass_keycloak import KeycloakIdentityProvider
 
@@ -50,13 +51,14 @@ def flask_app():
 @pytest.fixture
 def provider():
     settings = {
+        'identifier_field': 'email',
         'keycloak_args': {
             'client_name': 'test_client_name',
             'client_secret': 'test_client_secret',
             'username': 'test_username',
             'password': 'test_password',
-            'access_token_url': 'http://localhost/realms/test/token',
-            'realm_api_url': 'test_realm_api_url'
+            'access_token_url': 'http://localhost/realms/test_realm/protocol/openid-connect/token',
+            'realm_api_url': 'http://localhost/admin/realms/test_realm'
         },
         'cache': MemoryCache
     }
@@ -75,3 +77,10 @@ def freeze_time():
     yield _freeze_time
     for freezer in reversed(freezers):
         freezer.stop()
+
+
+@pytest.fixture
+def mock_get_api_session(mocker):
+    get_api_session = mocker.patch('flask_multipass_keycloak.KeycloakIdentityProvider._get_api_session')
+    get_api_session.return_value = Session()
+    return get_api_session

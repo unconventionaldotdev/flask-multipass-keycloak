@@ -162,7 +162,7 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
                       'populateHierarchy': 'false'}
             groups = self._fetch_all(api_session,'groups', params=params)
             for group in groups:
-                yield self.group_class(self, self.group_path_as_name(group['path']))
+                yield self.get_group(self.group_path_as_name(group['path']))
 
     def get_identity_groups(self, identifier):
         with self._get_api_session() as api_session:
@@ -175,7 +175,7 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
             # query user's groups
             self.logger.info('Requesting groups of "%s"', identifier)
             groups = self._fetch_all(api_session, f'users/{users[0]["id"]}/groups')
-        return {self.group_class(self, group['name']) for group in groups}
+        return {self.get_group(group['name']) for group in groups}
 
     @memoize_request
     def _get_group_data(self, name):
