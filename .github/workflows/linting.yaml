@@ -1,0 +1,37 @@
+name: linting
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: |
+          pipx install poetry
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # TODO: Remove explicit Python version once bug with .python-version file is solved
+          #       https://github.com/actions/setup-python/issues/734
+          python-version: '3.12'
+          cache: 'poetry'
+      - name: Install package
+        run: |
+          poetry install
+      - name: Run linters
+        env:
+          NO_COLORS: true  # Disable colors in ruff output
+        run: |
+          echo "::add-matcher::.github/matchers/ruff.json"
+          echo "::add-matcher::.github/matchers/unbehead.json"
+          poetry run -- make lint
+          echo "::remove-matcher owner=unbehead::"
+          echo "::remove-matcher owner=ruff::"
