@@ -18,7 +18,7 @@ from flask_multipass.providers.authlib import AuthlibAuthProvider
 from flask_multipass.providers.authlib import AuthlibIdentityProvider
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import BadRequest
 
 CACHE_LONG_TTL = 86400 * 7
 CACHE_TTL = 1800
@@ -197,8 +197,8 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
     def _get_error_message(self, response):
         data = response.json()
         error_message = f'Keycloak API error: {response.status_code} - {data["error"]}'
-        if "error_description" in data:
-            error_message += f' - {data["error_description"]}'
+        if 'error_description' in data:
+            error_message += f" - {data['error_description']}"
         return error_message
 
     @memoize_request

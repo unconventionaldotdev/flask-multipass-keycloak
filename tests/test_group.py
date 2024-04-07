@@ -5,9 +5,9 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
+from flask_multipass.data import IdentityInfo
 from requests.exceptions import RequestException
 
-from flask_multipass.data import IdentityInfo
 from flask_multipass_keycloak import KeycloakGroup
 from tests.conftest import MemoryCache
 

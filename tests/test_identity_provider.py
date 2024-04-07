@@ -1,15 +1,9 @@
 # This file is part of Flask-Multipass-Keycloak.
 # Copyright (C) 2023 - 2024 CERN
 
-from datetime import datetime
-from unittest.mock import MagicMock
-
 import pytest
-from requests.exceptions import RequestException
 
-from flask_multipass.data import IdentityInfo
 from flask_multipass_keycloak import KeycloakGroup
-from tests.conftest import MemoryCache
 
 
 @pytest.fixture
