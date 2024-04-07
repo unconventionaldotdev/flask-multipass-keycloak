@@ -1,26 +1,32 @@
 # Flask-Multipass-Keycloak
 
-This package provides the `keycloak` auth and identity providers for [Flask-Multipass][multipass].
+This package provides the `keycloak` authentication and identity providers for [Flask-Multipass][multipass].
 
-The package delivers 2 providers:
-* `KeycloakAuthProvider`
+`KeycloakAuthProvider`
+This provider is a simple wrapper around [`AuthlibAuthProvider`](https://flask-multipass.readthedocs.io/en/latest/api/#flask_multipass.providers.authlib.AuthlibAuthProvider), since Keycloak works well with the standard `authlib` provider in `flask-multipass`.
 
-  Currently it is nothing else than the `AuthlibAuthProvider`, since Keycloak works well with the standard `authlib` multipass provider.
-* `KeycloakIdentityProvider`
-
-  In its current state it provides access to group information and members utilising Keycloak REST API.
+`KeycloakIdentityProvider`
+This provider gives access to group information and members via Keycloak REST API.
 
 ## Install
 
 ```
-pip install git+https://github.com/indico/flask-multipass-keycloak.git
+pip install flask-multipass-keycloak
 ```
 
-## Configuration
+> [!IMPORTANT]
+> While the package remains unpublished on PyPI, please install it with the following command:
+> ```
+> pip install git+https://github.com/unconventionaldotdev/flask-multipass-keycloak.git
+> ```
+
+## Usage
+
+### Configuration
 
 The configuration follows the standard [Flask-Multipass][multipass] way and the Keycloak specific part placed into the `keycloak_args` section.
 
-```
+```python
 MULTIPASS_AUTH_PROVIDERS = {
     'keycloak': {
         'type': 'keycloak',
@@ -46,11 +52,58 @@ MULTIPASS_IDENTITY_PROVIDERS = {
 }
 ```
 
-## Performance
+### Performance
 
-The library needs to get an API access token from Keycloak which typically takes 200-300ms. Set the `cache` key of the multipass identity
-provider configuration to the import path of a Flask-Caching instance or a function returning such
-an instance, or the instance itself to enable caching of tokens (until they expire) and group
-data (30 minutes).
+The library needs to get an API access token from Keycloak which typically takes 200-300ms. Set the `cache` key of the multipass identity provider configuration to the import path of a Flask-Caching instance or a function returning such an instance, or the instance itself to enable caching of tokens (until they expire) and group data (30 minutes).
+
+## Development
+
+In order to develop `flask-multipass-keycloak`, install the project and its dependencies in a virtualenv. This guide assumes that you have the following tools installed and available in your path:
+
+- [`git`](https://git-scm.com/) (available in most systems)
+- [`make`](https://www.gnu.org/software/make/) (available in most systems)
+- [`poetry`](https://python-poetry.org/) ([installation guide](https://python-poetry.org/docs/#installation))
+- [`pyenv`](https://github.com/pyenv/pyenv) ([installation guide](https://github.com/pyenv/pyenv#installation))
+
+First, clone the repository locally with:
+
+```shell
+git clone https://github.com/indico/flask-multipass-keycloak
+cd flask-multipass-keycloak
+```
+
+Before creating the virtualenv, make sure to be using the same version of Python that the development of the project is targeting. This is the first version specified in the `.python-version` file and you can install it with `pyenv`:
+
+```sh
+pyenv install
+```
+
+You may now create the virtualenv and install the project with its dependencies in it with `poetry`:
+
+```sh
+poetry install
+```
+
+### Contributing
+
+This project uses GitHub Actions to run the tests and linter on every pull request. You are still encouraged to run the tests and linter locally before pushing your changes.
+
+Run linter checks with:
+
+```sh
+poetry run -- make lint
+```
+
+Run tests with:
+
+```sh
+poetry run -- make test
+```
+
+Run tests against all supported Python versions with:
+
+```sh
+tox
+```
 
 [multipass]: https://github.com/indico/flask-multipass
