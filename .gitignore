@@ -2,5 +2,11 @@
 .venv/
 
 # temporary directories
+.pytest_cache/
 .ruff_cache/
+.tox/
 __pycache__/
+
+# test coverage
+htmlcov/
+.coverage
