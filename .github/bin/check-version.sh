@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # This file is part of Flask-Multipass-Keycloak.
-# Copyright (C) 2023 - 2024 CERN
+# Copyright (C) 2023 - 2024 CERN & UNCONVENTIONAL
 
 set -e
 
