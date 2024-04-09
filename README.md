@@ -14,12 +14,6 @@ This provider gives access to group information and members via Keycloak REST AP
 pip install flask-multipass-keycloak
 ```
 
-> [!IMPORTANT]
-> While the package remains unpublished on PyPI, please install it with the following command:
-> ```
-> pip install git+https://github.com/unconventionaldotdev/flask-multipass-keycloak.git
-> ```
-
 ## Usage
 
 ### Configuration
