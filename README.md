@@ -62,7 +62,7 @@ In order to develop `flask-multipass-keycloak`, install the project and its depe
 First, clone the repository locally with:
 
 ```shell
-git clone https://github.com/indico/flask-multipass-keycloak
+git clone https://github.com/unconventionaldotdev/flask-multipass-keycloak
 cd flask-multipass-keycloak
 ```
 
