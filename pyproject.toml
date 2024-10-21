@@ -45,3 +45,7 @@ keycloak = "flask_multipass_keycloak:KeycloakIdentityProvider"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+addopts = "--cov src --cov-report html --no-cov-on-fail"
