@@ -180,7 +180,7 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
     @memoize_request
     def _get_group_data(self, name):
         # API allows searching groups only by name
-        _, real_group_name = name.rsplit(' > ', 1)
+        *_, real_group_name = name.rsplit(' > ', 1)
         group_path = self.group_name_as_path(name)
         params = {'search': real_group_name,
                   'exact': 'true',
