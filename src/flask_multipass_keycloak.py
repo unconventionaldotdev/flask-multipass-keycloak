@@ -16,7 +16,6 @@ from flask_multipass.data import IdentityInfo
 from flask_multipass.group import Group
 from flask_multipass.providers.authlib import AuthlibAuthProvider
 from flask_multipass.providers.authlib import AuthlibIdentityProvider
-from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
 from werkzeug.exceptions import BadRequest
 
@@ -209,12 +208,16 @@ class KeycloakIdentityProvider(AuthlibIdentityProvider):
         if api_token:
             api_session.headers.update({'Authorization': f'Bearer {api_token}'})
             return api_session
-        basic = HTTPBasicAuth(self.keycloak_settings['client_name'], self.keycloak_settings['client_secret'])
-        data = {'username': self.keycloak_settings['username'],
-                'password': self.keycloak_settings['password'],
-                'grant_type': 'password'}
+        data = {'client_id': self.keycloak_settings['client_id'],
+                'client_secret': self.keycloak_settings['client_secret'],
+                'grant_type': self.keycloak_settings['grant_type']}
+        # Supported grant types: password and client_credentials
+        if data['grant_type'] == 'password':
+            data |= {'username': self.keycloak_settings['username'],
+                     'password': self.keycloak_settings['password']}
+
         self.logger.info('Requesting access token')
-        response = api_session.post(self.keycloak_settings['access_token_url'], auth=basic, data=data)
+        response = api_session.post(self.keycloak_settings['access_token_url'], data=data)
         if response.status_code != 200:
             error_message = self._get_error_message(response)
             self.logger.error(f'{error_message} (URL: %s)', response.url)
