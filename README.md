@@ -35,16 +35,40 @@ MULTIPASS_IDENTITY_PROVIDERS = {
         'title': 'Keycloak Identity Provider',
         'identifier_field': 'email',
         'keycloak_args': {
-            'client_name': '<client_name>',
+            'grant_type': 'client_credentials',
+            'client_id': '<client_id>',
             'client_secret': '<client_secret>',
-            'username': <username>,
-            'password': <password>,
-            'access_token_url': <access-token-url>,
-            'realm_api_url': <realm-api-url>
+            'access_token_url': '<access-token-url>',
+            'realm_api_url': '<realm-api-url>'
         }
     }
 }
 ```
+
+The configuration values are following:
+
+1. `grant_type`
+
+   Default value is `client_credentials`. In Keycloak, "Service accounts roles" must be enabled in client config (Client details/Settings/Capability).
+
+   `password` is also supported. In Keycloak, "Direct access grants" must be enabled in client config (Client details/Settings/Capability). In this case 2 additional fields must be added: `username` and `password`.
+
+2. `client_id`
+
+   In Keycloak, Client details/Setting/Client ID field.
+
+3. `client_secret`
+
+   In Keycloak, Client details/Credentials/Client Secret field.
+
+4. `access_token_url`
+
+   In Keycloak, Realm settings/General/Endpoints/OpenID Endpoint Configuration/"token_endpoint".
+
+5. `realm_api_url`
+
+   The URL format is `<base url>/admin/realms/<realm name>`, where the realm is where the users and user groups are configured.
+
 
 ### Performance
 

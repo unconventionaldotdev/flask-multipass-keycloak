@@ -53,10 +53,9 @@ def provider():
     settings = {
         'identifier_field': 'email',
         'keycloak_args': {
-            'client_name': 'test_client_name',
+            'grant_type': 'client_credentials',
+            'client_id': 'test_client_id',
             'client_secret': 'test_client_secret',
-            'username': 'test_username',
-            'password': 'test_password',
             'access_token_url': 'http://localhost/realms/test_realm/protocol/openid-connect/token',
             'realm_api_url': 'http://localhost/admin/realms/test_realm'
         },
