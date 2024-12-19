@@ -5,7 +5,7 @@ prefer-active-python = true
 
 [tool.poetry]
 name = "Flask-Multipass-Keycloak"
-version = "0.1.1"
+version = "0.1.2"
 description = "Flask-Multipass provider for Keycloak"
 repository = "https://github.com/unconventionaldotdev/flask-multipass-keycloak"
 readme = "README.md"
