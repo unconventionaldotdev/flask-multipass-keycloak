@@ -79,8 +79,6 @@ jobs:
           # TODO: Re-enable attestations once PyPI supports reusable workflows
           #       Source: https://github.com/pypa/gh-action-pypi-publish/issues/283#issuecomment-2504200656
           attestations: false
-          # TODO: Remove after v0.1.2 is successfully published
-          skip-existing: true
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
